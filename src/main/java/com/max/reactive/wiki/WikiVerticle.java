@@ -1,10 +1,11 @@
 package com.max.reactive.wiki;
 
-import com.max.reactive.wiki.handler.AddNewPageHandler;
+import com.max.reactive.wiki.handler.CreateNewPageHandler;
 import com.max.reactive.wiki.handler.DeletePageHandler;
 import com.max.reactive.wiki.handler.GetPageHandler;
 import com.max.reactive.wiki.handler.HealthHandler;
 import com.max.reactive.wiki.handler.IndexHandler;
+import com.max.reactive.wiki.handler.SavePageHandler;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonObject;
@@ -84,11 +85,9 @@ public class WikiVerticle extends AbstractVerticle {
 
         // POST
         router.post().handler(BodyHandler.create());
-        router.post("/wiki").handler(new AddNewPageHandler());
-
-        // DELETE
-        router.delete().handler(BodyHandler.create());
-        router.delete("/wiki/:page").handler(new DeletePageHandler(dbClient));
+        router.post("/wiki/create").handler(new CreateNewPageHandler());
+        router.post("/wiki/save").handler(new SavePageHandler());
+        router.post("/wiki/delete").handler(new DeletePageHandler());
 
         Future<Void> httpServerFuture = Future.future();
 

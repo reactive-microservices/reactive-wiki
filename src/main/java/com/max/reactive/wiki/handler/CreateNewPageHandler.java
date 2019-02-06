@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
 
-public final class AddNewPageHandler implements Handler<RoutingContext> {
+public final class CreateNewPageHandler implements Handler<RoutingContext> {
 
     private static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 

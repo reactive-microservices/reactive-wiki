@@ -16,7 +16,7 @@
         ${content}
     </div>
     <div class="col-md-12 collapsable collapse clearfix" id="editor">
-        <form action="/wiki" method="post">
+        <form action="/wiki/save" method="post">
             <div class="form-group">
                 <input type="hidden" name="id" value="${id}">
                 <input type="hidden" name="title" value="${title}">
@@ -25,7 +25,7 @@
             </div>
             <button type="submit" class="btn btn-primary">Save</button>
             <#if id != -1>
-                <button type="submit" formaction="/delete" class="btn btn-danger float-right">Delete</button>
+                <button type="submit" formaction="/wiki/delete" class="btn btn-danger float-right">Delete</button>
             </#if>
         </form>
     </div>

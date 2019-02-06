@@ -1,14 +1,14 @@
-package com.max.reactive.wiki;
+package com.max.reactive.wiki.handler;
 
 import io.vertx.core.Handler;
 import io.vertx.ext.jdbc.JDBCClient;
 import io.vertx.ext.web.RoutingContext;
 
-final class DeletePageHandler implements Handler<RoutingContext> {
+public final class DeletePageHandler implements Handler<RoutingContext> {
 
     private final JDBCClient dbClient;
 
-    DeletePageHandler(JDBCClient dbClient) {
+    public DeletePageHandler(JDBCClient dbClient) {
         this.dbClient = dbClient;
     }
 

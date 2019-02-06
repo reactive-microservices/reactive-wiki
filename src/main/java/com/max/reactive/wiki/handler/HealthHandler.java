@@ -1,10 +1,10 @@
-package com.max.reactive.wiki;
+package com.max.reactive.wiki.handler;
 
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
 
-final class HealthHandler implements Handler<RoutingContext> {
+public final class HealthHandler implements Handler<RoutingContext> {
 
     @Override
     public void handle(RoutingContext ctx) {

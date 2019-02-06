@@ -1,5 +1,6 @@
-package com.max.reactive.wiki;
+package com.max.reactive.wiki.handler;
 
+import com.max.reactive.wiki.PageDao;
 import io.vertx.core.Handler;
 import io.vertx.ext.jdbc.JDBCClient;
 import io.vertx.ext.sql.SQLConnection;
@@ -9,12 +10,12 @@ import io.vertx.ext.web.templ.freemarker.FreeMarkerTemplateEngine;
 import java.util.List;
 import java.util.stream.Collectors;
 
-final class IndexHandler implements Handler<RoutingContext> {
+public final class IndexHandler implements Handler<RoutingContext> {
 
     private final JDBCClient dbClient;
     private final FreeMarkerTemplateEngine templateEngine;
 
-    IndexHandler(JDBCClient dbClient, FreeMarkerTemplateEngine templateEngine) {
+    public IndexHandler(JDBCClient dbClient, FreeMarkerTemplateEngine templateEngine) {
         this.dbClient = dbClient;
         this.templateEngine = templateEngine;
     }
@@ -44,7 +45,7 @@ final class IndexHandler implements Handler<RoutingContext> {
                         ctx.put("title", "Wiki Home");
                         ctx.put("pages", pages);
 
-                        templateEngine.render(ctx.data(), "template/pages.ftl", renderResult -> {
+                        templateEngine.render(ctx.data(), "templates/pages.ftl", renderResult -> {
                             if (ar.failed()) {
                                 ctx.fail(renderResult.cause());
                             }

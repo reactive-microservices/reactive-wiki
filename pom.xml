@@ -120,6 +120,7 @@
                             <ignoredDependencies>
                                 <ignoredDependency>ch.qos.logback:logback-classic:jar:${logback.version}</ignoredDependency>
                                 <ignoredDependency>ch.qos.logback:logback-core:jar:${logback.version}</ignoredDependency>
+                                <ignoredDependency>org.mockito:mockito-core</ignoredDependency>
                             </ignoredDependencies>
                         </configuration>
                     </execution>

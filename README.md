@@ -26,6 +26,6 @@ java -jar target/reactive-wiki-1.0.0-SNAPSHOT-fat.jar
 
 Check service running:
 ```
-curl localhost:7777
+curl localhost:8080
 ```
 

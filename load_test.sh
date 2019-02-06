@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-wrk -t20 -c500 -d60s http://localhost:7777
+wrk -t20 -c500 -d60s http://localhost:8080

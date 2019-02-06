@@ -6,6 +6,8 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.jdbc.JDBCClient;
 import io.vertx.ext.sql.SQLConnection;
 import io.vertx.ext.web.Router;
+import io.vertx.ext.web.handler.BodyHandler;
+import io.vertx.ext.web.templ.freemarker.FreeMarkerTemplateEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,6 +20,8 @@ public class WikiVerticle extends AbstractVerticle {
     static final int PORT = 8080;
 
     private JDBCClient dbClient;
+
+    private FreeMarkerTemplateEngine templateEngine;
 
     @Override
     public void start(Future<Void> startFuture) {
@@ -63,29 +67,41 @@ public class WikiVerticle extends AbstractVerticle {
     }
 
     private Future<Void> startHttpServer() {
-        Future<Void> httpServerFuture = Future.future();
+
+        templateEngine = FreeMarkerTemplateEngine.create(vertx);
 
         Router router = Router.router(vertx);
 
-        router.get("/pages").handler(new PagesHandler(dbClient));
-
+        // GET
         router.get("/health").handler(new HealthHandler());
+        router.get("/wiki").handler(new IndexHandler(dbClient, templateEngine));
+        router.get("/wiki/:pageId").handler(new GetPageHandler(dbClient));
+
+        // POST
+        router.post().handler(BodyHandler.create());
+        router.post("/wiki/:page").handler(new AddNewPageHandler(dbClient));
+
+        // DELETE
+        router.delete().handler(BodyHandler.create());
+        router.delete("/wiki/:page").handler(new DeletePageHandler(dbClient));
+
+        Future<Void> httpServerFuture = Future.future();
 
         vertx.createHttpServer()
                 .requestHandler(router)
                 .listen(PORT, ar -> {
                     if (ar.failed()) {
+                        LOG.error("Can't start HTTP", ar.cause());
                         httpServerFuture.fail(ar.cause());
                     }
                     else {
-                        LOG.info("HTTP server successfulyl started at port {}", PORT);
+                        LOG.info("HTTP server successfully started at port {}", PORT);
                         httpServerFuture.complete();
                     }
                 });
 
         return httpServerFuture;
     }
-
 
 
 }

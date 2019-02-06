@@ -8,8 +8,12 @@ final class HealthHandler implements Handler<RoutingContext> {
 
     @Override
     public void handle(RoutingContext ctx) {
-        ctx.response().end(new JsonObject().
-                put("status", "OK").
-                encodePrettily());
+        JsonObject statusObj = new JsonObject();
+        statusObj.put("http server", "OK");
+        statusObj.put("db", "OK");
+
+        ctx.response().
+                putHeader("Content-Type", "application/json").
+                end(statusObj.encodePrettily());
     }
 }

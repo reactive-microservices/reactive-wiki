@@ -21,7 +21,7 @@ final class PagesHandler implements Handler<RoutingContext> {
             }
             else {
                 SQLConnection conn = ar.result();
-                conn.query("SELECT * FROM PAGE", selectRes -> {
+                conn.query(PageDao.SQL_SELECT_ALL_PAGES, selectRes -> {
                     conn.close();
 
                     if (selectRes.succeeded()) {
@@ -30,7 +30,6 @@ final class PagesHandler implements Handler<RoutingContext> {
                     else {
                         ctx.response().setStatusCode(500).end("Error: " + selectRes.cause().getMessage());
                     }
-
                 });
             }
         });

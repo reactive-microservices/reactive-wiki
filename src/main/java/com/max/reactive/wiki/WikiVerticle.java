@@ -67,33 +67,9 @@ public class WikiVerticle extends AbstractVerticle {
 
         Router router = Router.router(vertx);
 
-        router.get("/pages").handler(ctx -> {
-            dbClient.getConnection(ar -> {
-                if (ar.failed()) {
-                    ctx.response().setStatusCode(500).end("Error: " + ar.cause().getMessage());
-                }
-                else {
-                    SQLConnection conn = ar.result();
-                    conn.query("SELECT * FROM PAGE", selectRes -> {
-                        conn.close();
+        router.get("/pages").handler(new PagesHandler(dbClient));
 
-                        if (selectRes.succeeded()) {
-                            ctx.response().setStatusCode(200).end(selectRes.result().toJson().encodePrettily());
-                        }
-                        else {
-                            ctx.response().setStatusCode(500).end("Error: " + selectRes.cause().getMessage());
-                        }
-
-                    });
-                }
-            });
-        });
-
-        router.get("/health").handler(ctx -> {
-            ctx.response().end(new JsonObject().
-                    put("status", "OK").
-                    encodePrettily());
-        });
+        router.get("/health").handler(new HealthHandler());
 
         vertx.createHttpServer()
                 .requestHandler(router)
@@ -109,5 +85,7 @@ public class WikiVerticle extends AbstractVerticle {
 
         return httpServerFuture;
     }
+
+
 
 }

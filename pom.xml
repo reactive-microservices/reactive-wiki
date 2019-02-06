@@ -107,27 +107,29 @@
             </plugin>
 
             <!-- Dependency plugin (fail build on warning) -->
-            <!--<plugin>-->
-                <!--<artifactId>maven-dependency-plugin</artifactId>-->
-                <!--<version>3.1.1</version>-->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<phase>test-compile</phase>-->
-                        <!--<id>analyze</id>-->
-                        <!--<goals>-->
-                            <!--<goal>analyze-only</goal>-->
-                        <!--</goals>-->
-                        <!--<configuration>-->
-                            <!--<failOnWarning>true</failOnWarning>-->
-                            <!--<ignoredDependencies>-->
-                                <!--<ignoredDependency>ch.qos.logback:logback-classic:jar:${logback.version}</ignoredDependency>-->
-                                <!--<ignoredDependency>ch.qos.logback:logback-core:jar:${logback.version}</ignoredDependency>-->
-                                <!--<ignoredDependency>org.mockito:mockito-core</ignoredDependency>-->
-                            <!--</ignoredDependencies>-->
-                        <!--</configuration>-->
-                    <!--</execution>-->
-                <!--</executions>-->
-            <!--</plugin>-->
+            <plugin>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.1.1</version>
+                <executions>
+                    <execution>
+                        <phase>test-compile</phase>
+                        <id>analyze</id>
+                        <goals>
+                            <goal>analyze-only</goal>
+                        </goals>
+                        <configuration>
+                            <failOnWarning>true</failOnWarning>
+                            <ignoredDependencies>
+                                <ignoredDependency>ch.qos.logback:logback-classic:jar:${logback.version}</ignoredDependency>
+                                <ignoredDependency>ch.qos.logback:logback-core:jar:${logback.version}</ignoredDependency>
+                                <ignoredDependency>org.mockito:mockito-core</ignoredDependency>
+                                <ignoredDependency>io.vertx:vertx-web-templ-freemarker</ignoredDependency>
+                                <ignoredDependency>com.github.rjeschke:txtmark</ignoredDependency>
+                            </ignoredDependencies>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
 
             <!-- JUnit runner, surefire plugin  -->
             <plugin>
@@ -151,6 +153,7 @@
                     <arguments>
                         <argument>run</argument>
                         <argument>${main.verticle}</argument>
+                        <argument>-Dhsqldb.reconfig_logging=false</argument>
                     </arguments>
                 </configuration>
             </plugin>
@@ -251,6 +254,10 @@
         <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-jdbc-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.vertx</groupId>
+            <artifactId>vertx-sql-common</artifactId>
         </dependency>
 
         <!-- Freemarker -->

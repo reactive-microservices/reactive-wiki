@@ -5,6 +5,7 @@ import io.vertx.core.Future;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.jdbc.JDBCClient;
 import io.vertx.ext.sql.SQLConnection;
+import io.vertx.ext.web.Router;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,8 +65,38 @@ public class WikiVerticle extends AbstractVerticle {
     private Future<Void> startHttpServer() {
         Future<Void> httpServerFuture = Future.future();
 
+        Router router = Router.router(vertx);
+
+        router.get("/pages").handler(ctx -> {
+            dbClient.getConnection(ar -> {
+                if (ar.failed()) {
+                    ctx.response().setStatusCode(500).end("Error: " + ar.cause().getMessage());
+                }
+                else {
+                    SQLConnection conn = ar.result();
+                    conn.query("SELECT * FROM PAGE", selectRes -> {
+                        conn.close();
+
+                        if (selectRes.succeeded()) {
+                            ctx.response().setStatusCode(200).end(selectRes.result().toJson().encodePrettily());
+                        }
+                        else {
+                            ctx.response().setStatusCode(500).end("Error: " + selectRes.cause().getMessage());
+                        }
+
+                    });
+                }
+            });
+        });
+
+        router.get("/health").handler(ctx -> {
+            ctx.response().end(new JsonObject().
+                    put("status", "OK").
+                    encodePrettily());
+        });
+
         vertx.createHttpServer()
-                .requestHandler(req -> req.response().end("Hello wiki."))
+                .requestHandler(router)
                 .listen(PORT, ar -> {
                     if (ar.failed()) {
                         httpServerFuture.fail(ar.cause());
@@ -78,4 +109,5 @@ public class WikiVerticle extends AbstractVerticle {
 
         return httpServerFuture;
     }
+
 }

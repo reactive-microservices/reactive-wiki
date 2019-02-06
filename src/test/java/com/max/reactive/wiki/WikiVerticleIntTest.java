@@ -28,11 +28,13 @@ public class WikiVerticleIntTest {
     @Test
     public void serverStartedSuccessfully(TestContext tc) {
         Async async = tc.async();
-        vertx.createHttpClient().getNow(WikiVerticle.PORT, "localhost", "/", response -> {
+        vertx.createHttpClient().getNow(WikiVerticle.PORT, "localhost", "/health", response -> {
             tc.assertEquals(response.statusCode(), 200);
             response.bodyHandler(body -> {
                 tc.assertTrue(body.length() > 0);
-                tc.assertEquals("Hello wiki.", body.toString());
+                tc.assertEquals("{\n" +
+                                        "  \"status\" : \"OK\"\n" +
+                                        "}", body.toString());
                 async.complete();
             });
         });

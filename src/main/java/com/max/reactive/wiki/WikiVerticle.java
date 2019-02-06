@@ -86,8 +86,8 @@ public class WikiVerticle extends AbstractVerticle {
         // POST
         router.post().handler(BodyHandler.create());
         router.post("/wiki/create").handler(new CreateNewPageHandler());
-        router.post("/wiki/save").handler(new SavePageHandler());
-        router.post("/wiki/delete").handler(new DeletePageHandler());
+        router.post("/wiki/save").handler(new SavePageHandler(dbClient));
+        router.post("/wiki/delete").handler(new DeletePageHandler(dbClient));
 
         Future<Void> httpServerFuture = Future.future();
 

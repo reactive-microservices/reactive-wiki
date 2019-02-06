@@ -2,7 +2,7 @@
 <div class="row">
     <div class="col-md-12 mt-1">
     <span class="float-right">
-<a class="btn btn-outline-primary" href="/" role="button" aria-pressed="true">Home</a>
+<a class="btn btn-outline-primary" href="/wiki" role="button" aria-pressed="true">Home</a>
 <button class="btn btn-outline-warning" type="button" data-toggle="collapse"
         data-target="#editor" aria-expanded="false" aria-controls="editor">Edit</button>
 </span>

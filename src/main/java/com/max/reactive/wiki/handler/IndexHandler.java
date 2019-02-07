@@ -55,7 +55,6 @@ public final class IndexHandler implements Handler<RoutingContext> {
                 SQLConnection conn = ar.result();
 
                 conn.query(PageDao.SQL_ALL_PAGES, resultSet -> {
-
                     conn.close();
 
                     if (resultSet.failed()) {
@@ -92,7 +91,6 @@ public final class IndexHandler implements Handler<RoutingContext> {
                 templateEngineFuture.complete(renderResult.result());
             }
         });
-
 
         return templateEngineFuture;
     }

@@ -14,6 +14,7 @@
         <java.version>1.8</java.version>
         <junit.version>4.12</junit.version>
         <mockito.version>2.21.0</mockito.version>
+        <lombok.version>1.18.4</lombok.version>
         <hsqldb.version>2.3.4</hsqldb.version>
         <freemarker.version>0.13</freemarker.version>
         <rxjava.version>1.2.7</rxjava.version>
@@ -125,6 +126,7 @@
                                 <ignoredDependency>org.mockito:mockito-core</ignoredDependency>
                                 <ignoredDependency>io.vertx:vertx-web-templ-freemarker</ignoredDependency>
                                 <ignoredDependency>com.github.rjeschke:txtmark</ignoredDependency>
+                                <ignoredDependency> org.projectlombok:lombok</ignoredDependency>
                             </ignoredDependencies>
                         </configuration>
                     </execution>
@@ -292,6 +294,13 @@
         </dependency>
 
         <!-- Compile dependencies-->
+        <!-- Lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+            <scope>compile</scope>
+        </dependency>
 
         <!-- Test dependencies -->
         <dependency>

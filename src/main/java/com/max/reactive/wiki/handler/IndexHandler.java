@@ -12,7 +12,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public final class IndexHandler implements Handler<RoutingContext> {
@@ -30,7 +32,7 @@ public final class IndexHandler implements Handler<RoutingContext> {
     @Override
     public void handle(RoutingContext ctx) {
         Future<Buffer> allStepsFuture =
-                getPagesFromDb().compose(pages -> renderData(ctx, pages));
+                getPagesFromDb().compose(this::renderData);
 
         allStepsFuture.setHandler(ar -> {
             if (ar.failed()) {
@@ -76,13 +78,14 @@ public final class IndexHandler implements Handler<RoutingContext> {
         return allPagesFuture;
     }
 
-    private Future<Buffer> renderData(RoutingContext ctx, List<String> pages) {
+    private Future<Buffer> renderData(List<String> pages) {
         Future<Buffer> templateEngineFuture = Future.future();
 
-        ctx.put("title", "Wiki Home");
-        ctx.put("pages", pages);
+        Map<String, Object> data = new HashMap<>();
+        data.put("title", "Wiki Home");
+        data.put("pages", pages);
 
-        templateEngine.render(ctx.data(), "templates/pages.ftl", renderResult -> {
+        templateEngine.render(data, "templates/pages.ftl", renderResult -> {
             if (renderResult.failed()) {
                 LOG.error("Error rendering template", renderResult.cause());
                 templateEngineFuture.fail(renderResult.cause());

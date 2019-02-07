@@ -33,7 +33,8 @@ public class WikiVerticleIntTest {
             response.bodyHandler(body -> {
                 tc.assertTrue(body.length() > 0);
                 tc.assertEquals("{\n" +
-                                        "  \"status\" : \"OK\"\n" +
+                                        "  \"http server\" : \"OK\",\n" +
+                                        "  \"db\" : \"OK\"\n" +
                                         "}", body.toString());
                 async.complete();
             });

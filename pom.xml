@@ -20,7 +20,7 @@
         <freemarker.version>0.13</freemarker.version>
         <rxjava.version>1.2.7</rxjava.version>
         <vertx.version>3.6.3</vertx.version>
-        <main.verticle>com.max.reactive.wiki.WikiVerticle</main.verticle>
+        <main.verticle>com.max.reactive.wiki.MainVerticle</main.verticle>
     </properties>
 
     <build>
@@ -124,7 +124,7 @@
                             <ignoredDependencies>
                                 <ignoredDependency>ch.qos.logback:logback-classic:jar:${logback.version}</ignoredDependency>
                                 <ignoredDependency>ch.qos.logback:logback-core:jar:${logback.version}</ignoredDependency>
-                                <ignoredDependency> org.projectlombok:lombok</ignoredDependency>
+                                <ignoredDependency>org.projectlombok:lombok</ignoredDependency>
                             </ignoredDependencies>
                         </configuration>
                     </execution>

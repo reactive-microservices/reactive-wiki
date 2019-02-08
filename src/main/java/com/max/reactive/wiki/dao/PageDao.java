@@ -1,4 +1,4 @@
-package com.max.reactive.wiki;
+package com.max.reactive.wiki.dao;
 
 public class PageDao {
 

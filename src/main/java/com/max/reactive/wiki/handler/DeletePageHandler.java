@@ -1,6 +1,6 @@
 package com.max.reactive.wiki.handler;
 
-import com.max.reactive.wiki.PageDao;
+import com.max.reactive.wiki.dao.PageDao;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
 import io.vertx.ext.jdbc.JDBCClient;

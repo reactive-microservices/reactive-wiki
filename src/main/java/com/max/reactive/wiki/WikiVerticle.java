@@ -1,5 +1,8 @@
 package com.max.reactive.wiki;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.max.reactive.wiki.dao.PageDao;
 import com.max.reactive.wiki.handler.CreateNewPageHandler;
 import com.max.reactive.wiki.handler.DeletePageHandler;
 import com.max.reactive.wiki.handler.GetPageHandler;
@@ -8,7 +11,6 @@ import com.max.reactive.wiki.handler.IndexHandler;
 import com.max.reactive.wiki.handler.SavePageHandler;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
-import io.vertx.core.json.JsonObject;
 import io.vertx.ext.jdbc.JDBCClient;
 import io.vertx.ext.sql.SQLConnection;
 import io.vertx.ext.web.Router;
@@ -25,12 +27,13 @@ public class WikiVerticle extends AbstractVerticle {
 
     static final int PORT = 8080;
 
-    private JDBCClient dbClient;
-
-    private FreeMarkerTemplateEngine templateEngine;
+    private Injector injector;
 
     @Override
     public void start(Future<Void> startFuture) {
+
+        injector = Guice.createInjector(new WikiModule(vertx));
+
         Future<Void> initSteps = prepareDatabase().compose(v -> startHttpServer());
         initSteps.setHandler(startFuture.completer());
     }
@@ -38,11 +41,7 @@ public class WikiVerticle extends AbstractVerticle {
     private Future<Void> prepareDatabase() {
         Future<Void> databaseFuture = Future.future();
 
-        dbClient = JDBCClient.createShared(vertx,
-                                           new JsonObject().
-                                                   put("url", "jdbc:hsqldb:file:db/wiki").
-                                                   put("driver_class", "org.hsqldb.jdbcDriver").
-                                                   put("max_pool_size", 30));
+        JDBCClient dbClient = injector.getInstance(JDBCClient.class);
 
         dbClient.getConnection(ar -> {
             if (ar.failed()) {
@@ -73,7 +72,8 @@ public class WikiVerticle extends AbstractVerticle {
 
     private Future<Void> startHttpServer() {
 
-        templateEngine = FreeMarkerTemplateEngine.create(vertx);
+        JDBCClient dbClient = injector.getInstance(JDBCClient.class);
+        FreeMarkerTemplateEngine templateEngine = injector.getInstance(FreeMarkerTemplateEngine.class);
 
         Router router = Router.router(vertx);
 

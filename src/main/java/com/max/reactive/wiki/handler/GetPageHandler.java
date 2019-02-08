@@ -1,7 +1,7 @@
 package com.max.reactive.wiki.handler;
 
 import com.github.rjeschke.txtmark.Processor;
-import com.max.reactive.wiki.PageDao;
+import com.max.reactive.wiki.dao.PageDao;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;

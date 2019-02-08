@@ -48,30 +48,18 @@ public final class IndexHandler implements Handler<RoutingContext> {
     private Future<List<String>> getPagesFromDb() {
         Future<List<String>> allPagesFuture = Future.future();
 
-        dbClient.getConnection(ar -> {
-            if (ar.failed()) {
-                LOG.error("Error obtaining connection to DB", ar.cause());
-                allPagesFuture.fail(ar.cause());
+        dbClient.query(PageDao.SQL_ALL_PAGES, resultSet -> {
+            if (resultSet.failed()) {
+                LOG.error("Error reading all pages from DB", resultSet.cause());
+                allPagesFuture.fail(resultSet.cause());
             }
             else {
-                SQLConnection conn = ar.result();
+                List<String> pages = resultSet.result().getResults().stream().
+                        map(json -> json.getString(0)).
+                        sorted().
+                        collect(Collectors.toList());
 
-                conn.query(PageDao.SQL_ALL_PAGES, resultSet -> {
-                    conn.close();
-
-                    if (resultSet.failed()) {
-                        LOG.error("Error reading all pages from DB", resultSet.cause());
-                        allPagesFuture.fail(resultSet.cause());
-                    }
-                    else {
-                        List<String> pages = resultSet.result().getResults().stream().
-                                map(json -> json.getString(0)).
-                                sorted().
-                                collect(Collectors.toList());
-
-                        allPagesFuture.complete(pages);
-                    }
-                });
+                allPagesFuture.complete(pages);
             }
         });
 

@@ -28,7 +28,7 @@ public class WikiVerticleIntTest {
     @Test
     public void serverStartedSuccessfully(TestContext tc) {
         Async async = tc.async();
-        vertx.createHttpClient().getNow(WikiVerticle.PORT, "localhost", "/health", response -> {
+        vertx.createHttpClient().getNow(8080, "localhost", "/health", response -> {
             tc.assertEquals(response.statusCode(), 200);
             response.bodyHandler(body -> {
                 tc.assertTrue(body.length() > 0);

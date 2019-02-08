@@ -25,7 +25,9 @@ public class WikiVerticle extends AbstractVerticle {
 
     private static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    static final int PORT = 8080;
+    private static final String HTTP_PORT_KEY = "http.server.port";
+    private static final String DB_QUEUE_KEY = "db.queue";
+
 
     private Injector injector;
 
@@ -75,6 +77,8 @@ public class WikiVerticle extends AbstractVerticle {
         JDBCClient dbClient = injector.getInstance(JDBCClient.class);
         FreeMarkerTemplateEngine templateEngine = injector.getInstance(FreeMarkerTemplateEngine.class);
 
+//        final String dbQueue = config().getString(DB_QUEUE_KEY, "db.queue");
+
         Router router = Router.router(vertx);
 
         // GET
@@ -90,15 +94,17 @@ public class WikiVerticle extends AbstractVerticle {
 
         Future<Void> httpServerFuture = Future.future();
 
+        final int portNumber = config().getInteger(HTTP_PORT_KEY, 8080);
+
         vertx.createHttpServer()
                 .requestHandler(router)
-                .listen(PORT, ar -> {
+                .listen(portNumber, ar -> {
                     if (ar.failed()) {
                         LOG.error("Can't start HTTP", ar.cause());
                         httpServerFuture.fail(ar.cause());
                     }
                     else {
-                        LOG.info("HTTP server successfully started at port {}", PORT);
+                        LOG.info("HTTP server successfully started at port {}", portNumber);
                         httpServerFuture.complete();
                     }
                 });

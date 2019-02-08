@@ -28,7 +28,6 @@ public class WikiVerticle extends AbstractVerticle {
     private static final String HTTP_PORT_KEY = "http.server.port";
     private static final String DB_QUEUE_KEY = "db.queue";
 
-
     private Injector injector;
 
     @Override

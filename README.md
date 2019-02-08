@@ -21,7 +21,7 @@ mvn compile exec:java
 ```
 Using fat jar file:
 ```
-java -jar target/reactive-wiki-1.0.0-SNAPSHOT-fat.jar
+java -jar target/reactive-wiki-1.0.0-SNAPSHOT-fat.jar -conf src/main/resources/wiki-config.json
 ```
 
 Check service running:

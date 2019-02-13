@@ -11,8 +11,6 @@ import com.max.reactive.wiki.handler.IndexHandler;
 import com.max.reactive.wiki.handler.SavePageHandler;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
-import io.vertx.ext.jdbc.JDBCClient;
-import io.vertx.ext.sql.SQLConnection;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.templ.freemarker.FreeMarkerTemplateEngine;
@@ -29,18 +27,11 @@ public class WikiVerticle extends AbstractVerticle {
 
     private PageDao pageDao;
 
-    private JDBCClient dbClient;
-
     private FreeMarkerTemplateEngine templateEngine;
 
     @Inject
     public void setPageDao(PageDao pageDao) {
         this.pageDao = pageDao;
-    }
-
-    @Inject
-    public void setDbClient(JDBCClient dbClient) {
-        this.dbClient = dbClient;
     }
 
     @Inject
@@ -53,38 +44,9 @@ public class WikiVerticle extends AbstractVerticle {
 
         Guice.createInjector(new WikiModule(vertx)).injectMembers(this);
 
-        Future<Void> initSteps = prepareDatabase().compose(v -> startHttpServer());
-        initSteps.setHandler(startFuture.completer());
-    }
-
-    private Future<Void> prepareDatabase() {
-        Future<Void> databaseFuture = Future.future();
-
-        dbClient.getConnection(ar -> {
-            if (ar.failed()) {
-                databaseFuture.fail(ar.cause());
-            }
-            else {
-
-                SQLConnection conn = ar.result();
-
-                conn.execute(PageDao.SQL_CREATE_PAGE_TABLE, createResult -> {
-                    conn.close();
-
-                    if (createResult.failed()) {
-                        LOG.error("Can't create PAGE table", createResult.cause());
-                        databaseFuture.fail(createResult.cause());
-                    }
-                    else {
-                        LOG.info("Connection to DB successfully created.");
-                        databaseFuture.complete();
-                    }
-                });
-
-            }
-        });
-
-        return databaseFuture;
+        pageDao.createTableIfNotExist().
+                compose(v -> startHttpServer()).
+                setHandler(startFuture.completer());
     }
 
     private Future<Void> startHttpServer() {
@@ -99,8 +61,8 @@ public class WikiVerticle extends AbstractVerticle {
         // POST
         router.post().handler(BodyHandler.create());
         router.post("/wiki/create").handler(new CreateNewPageHandler());
-        router.post("/wiki/save").handler(new SavePageHandler(dbClient));
-        router.post("/wiki/delete").handler(new DeletePageHandler(dbClient));
+        router.post("/wiki/save").handler(new SavePageHandler(pageDao));
+        router.post("/wiki/delete").handler(new DeletePageHandler(pageDao));
 
         Future<Void> httpServerFuture = Future.future();
 

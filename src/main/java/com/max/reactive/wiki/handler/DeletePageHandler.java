@@ -2,8 +2,6 @@ package com.max.reactive.wiki.handler;
 
 import com.max.reactive.wiki.dao.PageDao;
 import io.vertx.core.Handler;
-import io.vertx.core.json.JsonArray;
-import io.vertx.ext.jdbc.JDBCClient;
 import io.vertx.ext.web.RoutingContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,10 +12,10 @@ public final class DeletePageHandler implements Handler<RoutingContext> {
 
     private static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    private final JDBCClient dbClient;
+    private final PageDao pageDao;
 
-    public DeletePageHandler(JDBCClient dbClient) {
-        this.dbClient = dbClient;
+    public DeletePageHandler(PageDao pageDao) {
+        this.pageDao = pageDao;
     }
 
     @Override
@@ -25,10 +23,10 @@ public final class DeletePageHandler implements Handler<RoutingContext> {
 
         final String pageId = ctx.request().getParam("id");
 
-        dbClient.updateWithParams(PageDao.SQL_DELETE_PAGE, new JsonArray().add(pageId), deleteRes -> {
-            if (deleteRes.failed()) {
-                LOG.error("Can't execute delete page SQL statement", deleteRes.cause());
-                ctx.fail(deleteRes.cause());
+        pageDao.delete(pageId).setHandler(ar -> {
+            if (ar.failed()) {
+                LOG.error("Can't execute delete page SQL statement", ar.cause());
+                ctx.fail(ar.cause());
             }
             else {
                 ctx.response().setStatusCode(303);
@@ -36,5 +34,6 @@ public final class DeletePageHandler implements Handler<RoutingContext> {
                 ctx.response().end();
             }
         });
+
     }
 }

@@ -1,9 +1,8 @@
 package com.max.reactive.wiki.handler;
 
 import com.max.reactive.wiki.dao.PageDao;
+import io.vertx.core.Future;
 import io.vertx.core.Handler;
-import io.vertx.core.json.JsonArray;
-import io.vertx.ext.jdbc.JDBCClient;
 import io.vertx.ext.web.RoutingContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,10 +13,10 @@ public final class SavePageHandler implements Handler<RoutingContext> {
 
     private static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    private final JDBCClient dbClient;
+    private final PageDao pageDao;
 
-    public SavePageHandler(JDBCClient dbClient) {
-        this.dbClient = dbClient;
+    public SavePageHandler(PageDao pageDao) {
+        this.pageDao = pageDao;
     }
 
     @Override
@@ -27,20 +26,19 @@ public final class SavePageHandler implements Handler<RoutingContext> {
         String title = ctx.request().getParam("title");
         String markdown = ctx.request().getParam("markdown");
 
-        String sql = isNewPage(ctx) ? PageDao.SQL_INSERT_PAGE : PageDao.SQL_UPDATE_PAGE;
-        JsonArray params = new JsonArray();
+        Future<Void> updateDbFuture;
 
         if (isNewPage(ctx)) {
-            params.add(title).add(markdown);
+            updateDbFuture = pageDao.save(title, markdown);
         }
         else {
-            params.add(markdown).add(id);
+            updateDbFuture = pageDao.update(id, markdown);
         }
 
-        dbClient.updateWithParams(sql, params, resultSet -> {
-            if (resultSet.failed()) {
-                LOG.error("Error", resultSet.cause());
-                ctx.fail(resultSet.cause());
+        updateDbFuture.setHandler(asyncResult -> {
+            if (asyncResult.failed()) {
+                LOG.error("Error", asyncResult.cause());
+                ctx.fail(asyncResult.cause());
             }
             else {
                 ctx.response().setStatusCode(303);

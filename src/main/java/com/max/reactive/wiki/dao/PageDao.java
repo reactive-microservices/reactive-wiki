@@ -3,6 +3,7 @@ package com.max.reactive.wiki.dao;
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonArray;
 import io.vertx.ext.jdbc.JDBCClient;
+import io.vertx.ext.sql.SQLConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,19 +17,46 @@ public class PageDao {
 
     private static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    public static final String SQL_CREATE_PAGE_TABLE = "create table if not exists PAGE (id integer identity primary key, " +
-            "name varchar(255) unique, content clob)";
-
-    public static final String SQL_INSERT_PAGE = "insert into PAGE values (NULL, ?, ?)";
-    public static final String SQL_UPDATE_PAGE = "update PAGE set content = ? where id = ?";
-
-    public static final String SQL_DELETE_PAGE = "delete from PAGE where id = ?";
+    private static final String EMPTY_PAGE_MARKDOWN =
+            "# A new page\n" +
+                    "\n" +
+                    "Feel-free to write in Markdown!\n";
 
     private JDBCClient dbClient;
 
     @Inject
     public void setDbClient(JDBCClient dbClient) {
         this.dbClient = dbClient;
+    }
+
+    public Future<Void> createTableIfNotExist() {
+        Future<Void> databaseFuture = Future.future();
+
+        dbClient.getConnection(ar -> {
+            if (ar.failed()) {
+                databaseFuture.fail(ar.cause());
+            }
+            else {
+
+                SQLConnection conn = ar.result();
+
+                conn.execute("create table if not exists PAGE (id integer identity primary key, " +
+                                     "name varchar(255) unique, content clob)", createResult -> {
+                    conn.close();
+
+                    if (createResult.failed()) {
+                        LOG.error("Can't create PAGE table", createResult.cause());
+                        databaseFuture.fail(createResult.cause());
+                    }
+                    else {
+                        LOG.info("Connection to DB successfully created.");
+                        databaseFuture.complete();
+                    }
+                });
+            }
+        });
+
+        return databaseFuture;
     }
 
     public Future<List<String>> getAllPages() {
@@ -51,11 +79,6 @@ public class PageDao {
 
         return allPagesFuture;
     }
-
-    private static final String EMPTY_PAGE_MARKDOWN =
-            "# A new page\n" +
-                    "\n" +
-                    "Feel-free to write in Markdown!\n";
 
     public Future<PageDto> getSinglePage(String pageName) {
 
@@ -85,4 +108,57 @@ public class PageDao {
         return readPageFuture;
     }
 
+    public Future<Void> save(String title, String content) {
+
+        Future<Void> resultFuture = Future.future();
+        JsonArray params = new JsonArray().add(title).add(content);
+
+        dbClient.updateWithParams("insert into PAGE values (NULL, ?, ?)", params, ar -> {
+            if (ar.failed()) {
+                resultFuture.fail(ar.cause());
+                LOG.error("Can't update page from DB", ar.cause());
+            }
+            else {
+                resultFuture.complete();
+            }
+        });
+
+        return resultFuture;
+    }
+
+    public Future<Void> update(String id, String content) {
+
+        Future<Void> resultFuture = Future.future();
+        JsonArray params = new JsonArray().add(content).add(id);
+
+        dbClient.updateWithParams("update PAGE set content = ? where id = ?", params, ar -> {
+            if (ar.failed()) {
+                resultFuture.fail(ar.cause());
+                LOG.error("Can't update page from DB", ar.cause());
+            }
+            else {
+                resultFuture.complete();
+            }
+        });
+
+        return resultFuture;
+
+    }
+
+    public Future<Void> delete(String id) {
+
+        Future<Void> resFuture = Future.future();
+
+        dbClient.updateWithParams("delete from PAGE where id = ?", new JsonArray().add(id), deleteRes -> {
+            if (deleteRes.failed()) {
+                LOG.error("Can't execute delete page SQL statement", deleteRes.cause());
+                resFuture.fail(deleteRes.cause());
+            }
+            else {
+                resFuture.complete();
+            }
+        });
+
+        return resFuture;
+    }
 }

@@ -3,7 +3,6 @@ package com.max.reactive.wiki.dao;
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonArray;
 import io.vertx.ext.jdbc.JDBCClient;
-import io.vertx.ext.sql.SQLConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,37 +28,45 @@ public class PageDao {
         this.dbClient = dbClient;
     }
 
+
+    public Future<List<PageDto>> getAllPages() {
+        Future<List<PageDto>> resFuture = Future.future();
+
+        dbClient.query("SELECT id, name from PAGE", res -> {
+            if (res.failed()) {
+                LOG.error("Can't read PAGE data from DB");
+                resFuture.fail(res.cause());
+            }
+            else {
+                List<PageDto> allPages = res.result().getResults().stream().
+                        map(json -> new PageDto(json.getString(1), json.getInteger(0), "", "", "")).collect(Collectors.toList());
+
+                resFuture.complete(allPages);
+            }
+        });
+
+        return resFuture;
+    }
+
     public Future<Void> createTableIfNotExist() {
         Future<Void> databaseFuture = Future.future();
 
-        dbClient.getConnection(ar -> {
+        dbClient.update("create table if not exists PAGE (id integer identity primary key, " +
+                                "name varchar(255) unique, content clob)", ar -> {
             if (ar.failed()) {
+                LOG.error("Can't create PAGE table", ar.cause());
                 databaseFuture.fail(ar.cause());
             }
             else {
-
-                SQLConnection conn = ar.result();
-
-                conn.execute("create table if not exists PAGE (id integer identity primary key, " +
-                                     "name varchar(255) unique, content clob)", createResult -> {
-                    conn.close();
-
-                    if (createResult.failed()) {
-                        LOG.error("Can't create PAGE table", createResult.cause());
-                        databaseFuture.fail(createResult.cause());
-                    }
-                    else {
-                        LOG.info("Connection to DB successfully created.");
-                        databaseFuture.complete();
-                    }
-                });
+                LOG.info("Connection to DB successfully created.");
+                databaseFuture.complete();
             }
         });
 
         return databaseFuture;
     }
 
-    public Future<List<String>> getAllPages() {
+    public Future<List<String>> getAllPagesNames() {
         Future<List<String>> allPagesFuture = Future.future();
 
         dbClient.query("select name from PAGE", resultSet -> {

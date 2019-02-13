@@ -29,7 +29,7 @@ public final class IndexHandler implements Handler<RoutingContext> {
     @Override
     public void handle(RoutingContext ctx) {
         Future<Buffer> allStepsFuture =
-                pageDao.getAllPages().compose(this::renderData);
+                pageDao.getAllPagesNames().compose(this::renderData);
 
         allStepsFuture.setHandler(ar -> {
             if (ar.failed()) {

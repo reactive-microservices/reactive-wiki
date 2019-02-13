@@ -4,8 +4,6 @@ import com.max.reactive.wiki.dao.PageDao;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
-import io.vertx.ext.jdbc.JDBCClient;
-import io.vertx.ext.sql.SQLConnection;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.templ.freemarker.FreeMarkerTemplateEngine;
 import org.slf4j.Logger;
@@ -15,24 +13,23 @@ import java.lang.invoke.MethodHandles;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public final class IndexHandler implements Handler<RoutingContext> {
 
     private static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    private final JDBCClient dbClient;
+    private final PageDao pageDao;
     private final FreeMarkerTemplateEngine templateEngine;
 
-    public IndexHandler(JDBCClient dbClient, FreeMarkerTemplateEngine templateEngine) {
-        this.dbClient = dbClient;
+    public IndexHandler(PageDao pageDao, FreeMarkerTemplateEngine templateEngine) {
+        this.pageDao = pageDao;
         this.templateEngine = templateEngine;
     }
 
     @Override
     public void handle(RoutingContext ctx) {
         Future<Buffer> allStepsFuture =
-                getPagesFromDb().compose(this::renderData);
+                pageDao.getAllPages().compose(this::renderData);
 
         allStepsFuture.setHandler(ar -> {
             if (ar.failed()) {
@@ -45,26 +42,6 @@ public final class IndexHandler implements Handler<RoutingContext> {
         });
     }
 
-    private Future<List<String>> getPagesFromDb() {
-        Future<List<String>> allPagesFuture = Future.future();
-
-        dbClient.query(PageDao.SQL_ALL_PAGES, resultSet -> {
-            if (resultSet.failed()) {
-                LOG.error("Error reading all pages from DB", resultSet.cause());
-                allPagesFuture.fail(resultSet.cause());
-            }
-            else {
-                List<String> pages = resultSet.result().getResults().stream().
-                        map(json -> json.getString(0)).
-                        sorted().
-                        collect(Collectors.toList());
-
-                allPagesFuture.complete(pages);
-            }
-        });
-
-        return allPagesFuture;
-    }
 
     private Future<Buffer> renderData(List<String> pages) {
         Future<Buffer> templateEngineFuture = Future.future();

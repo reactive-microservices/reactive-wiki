@@ -1,7 +1,7 @@
 package com.max.reactive.wiki;
 
 import com.google.inject.Guice;
-import com.google.inject.Injector;
+import com.google.inject.Inject;
 import com.max.reactive.wiki.dao.PageDao;
 import com.max.reactive.wiki.handler.CreateNewPageHandler;
 import com.max.reactive.wiki.handler.DeletePageHandler;
@@ -26,14 +26,32 @@ public class WikiVerticle extends AbstractVerticle {
     private static Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
     private static final String HTTP_PORT_KEY = "http.server.port";
-    private static final String DB_QUEUE_KEY = "db.queue";
 
-    private Injector injector;
+    private PageDao pageDao;
+
+    private JDBCClient dbClient;
+
+    private FreeMarkerTemplateEngine templateEngine;
+
+    @Inject
+    public void setPageDao(PageDao pageDao) {
+        this.pageDao = pageDao;
+    }
+
+    @Inject
+    public void setDbClient(JDBCClient dbClient) {
+        this.dbClient = dbClient;
+    }
+
+    @Inject
+    public void setTemplateEngine(FreeMarkerTemplateEngine templateEngine) {
+        this.templateEngine = templateEngine;
+    }
 
     @Override
     public void start(Future<Void> startFuture) {
 
-        injector = Guice.createInjector(new WikiModule(vertx));
+        Guice.createInjector(new WikiModule(vertx)).injectMembers(this);
 
         Future<Void> initSteps = prepareDatabase().compose(v -> startHttpServer());
         initSteps.setHandler(startFuture.completer());
@@ -41,8 +59,6 @@ public class WikiVerticle extends AbstractVerticle {
 
     private Future<Void> prepareDatabase() {
         Future<Void> databaseFuture = Future.future();
-
-        JDBCClient dbClient = injector.getInstance(JDBCClient.class);
 
         dbClient.getConnection(ar -> {
             if (ar.failed()) {
@@ -73,17 +89,12 @@ public class WikiVerticle extends AbstractVerticle {
 
     private Future<Void> startHttpServer() {
 
-        JDBCClient dbClient = injector.getInstance(JDBCClient.class);
-        FreeMarkerTemplateEngine templateEngine = injector.getInstance(FreeMarkerTemplateEngine.class);
-
-//        final String dbQueue = config().getString(DB_QUEUE_KEY, "db.queue");
-
         Router router = Router.router(vertx);
 
         // GET
         router.get("/health").handler(new HealthHandler());
-        router.get("/wiki").handler(new IndexHandler(dbClient, templateEngine));
-        router.get("/wiki/:pageName").handler(new GetPageHandler(dbClient, templateEngine));
+        router.get("/wiki").handler(new IndexHandler(pageDao, templateEngine));
+        router.get("/wiki/:pageName").handler(new GetPageHandler(pageDao, templateEngine));
 
         // POST
         router.post().handler(BodyHandler.create());

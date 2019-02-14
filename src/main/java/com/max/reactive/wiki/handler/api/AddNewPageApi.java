@@ -16,15 +16,14 @@ public class AddNewPageApi implements Handler<RoutingContext> {
     @Override
     public void handle(RoutingContext ctx) {
 
-        final String title = ctx.request().getParam("title");
-        final String content = ctx.request().getParam("content");
+        JsonObject body = ctx.getBodyAsJson();
 
-        pageDao.save(title, content).
+        pageDao.save(body.getString("title"), body.getString("content")).
                 setHandler(ar -> {
                     if (ar.failed()) {
                         JsonObject errorData = new JsonObject();
                         errorData.put("error", "ERROR_ADDING_NEW_PAGE");
-                        errorData.put("details", "Can't add new page with title " + title);
+                        errorData.put("details", "Can't add new page with title " + body.getString("title"));
                         ctx.response().setStatusCode(500).end(errorData.encodePrettily());
                     }
                     else {

@@ -32,7 +32,7 @@ public final class GetPageHandler implements Handler<RoutingContext> {
 
         String pageName = ctx.request().getParam("pageName");
 
-        Future<Buffer> getPageFuture = pageDao.getSinglePage(pageName).compose(this::renderTemplate);
+        Future<Buffer> getPageFuture = pageDao.getSinglePageByName(pageName).compose(this::renderTemplate);
 
         getPageFuture.setHandler(ar -> {
             if (ar.failed()) {

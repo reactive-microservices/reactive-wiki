@@ -87,7 +87,7 @@ public class PageDao {
         return allPagesFuture;
     }
 
-    public Future<PageDto> getSinglePage(String pageName) {
+    public Future<PageDto> getSinglePageByName(String pageName) {
 
         Future<PageDto> readPageFuture = Future.future();
 
@@ -167,5 +167,28 @@ public class PageDao {
         });
 
         return resFuture;
+    }
+
+    public Future<PageDto> getSinglePageById(String id) {
+        Future<PageDto> dbFuture = Future.future();
+
+        dbClient.queryWithParams("SELECT id, name, content from PAGE where id = ?", new JsonArray().add(id), ar -> {
+            if (ar.failed()) {
+                LOG.error("Can't get page with id " + id + " from DB", ar.cause());
+                dbFuture.fail(ar.cause());
+            }
+            else {
+                JsonArray row = ar.result().getResults().
+                        stream().
+                        findFirst().
+                        orElse(new JsonArray());
+
+                PageDto dto = new PageDto(row.getString(1), row.getInteger(0), "false",
+                                          row.getString(2), new Date().toString());
+                dbFuture.complete(dto);
+            }
+        });
+
+        return dbFuture;
     }
 }

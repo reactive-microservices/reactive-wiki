@@ -28,9 +28,10 @@ public class GetAllPagesApi implements Handler<RoutingContext> {
                 ctx.response().setStatusCode(500).end(errorData.encodePrettily());
             }
             else {
-                List<JsonObject> allPagesJson = ar.result().stream().map(pageDto -> {
-                    return new JsonObject().put("id", pageDto.getPageId()).put("name", pageDto.getPageName());
-                }).collect(Collectors.toList());
+                List<JsonObject> allPagesJson = ar.result().stream().
+                        map(pageDto ->
+                                    new JsonObject().put("id", pageDto.getPageId()).put("name", pageDto.getPageName())
+                        ).collect(Collectors.toList());
 
                 JsonObject allPages = new JsonObject().put("pages", new JsonArray(allPagesJson));
 

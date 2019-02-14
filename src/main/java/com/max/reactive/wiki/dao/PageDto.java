@@ -11,4 +11,6 @@ public class PageDto {
     private final String content;
     private final String timestamp;
 
+    public static final PageDto EMPTY = new PageDto("", -1, "", "", "");
+
 }

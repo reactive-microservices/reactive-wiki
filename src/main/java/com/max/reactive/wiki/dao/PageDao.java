@@ -115,9 +115,9 @@ public class PageDao {
         return readPageFuture;
     }
 
-    public Future<Void> save(String title, String content) {
+    public Future<Integer> save(String title, String content) {
 
-        Future<Void> resultFuture = Future.future();
+        Future<Integer> resultFuture = Future.future();
         JsonArray params = new JsonArray().add(title).add(content);
 
         dbClient.updateWithParams("insert into PAGE values (NULL, ?, ?)", params, ar -> {
@@ -126,7 +126,8 @@ public class PageDao {
                 LOG.error("Can't update page from DB", ar.cause());
             }
             else {
-                resultFuture.complete();
+
+                resultFuture.complete(ar.result().getKeys().getInteger(0));
             }
         });
 
@@ -183,9 +184,14 @@ public class PageDao {
                         findFirst().
                         orElse(new JsonArray());
 
-                PageDto dto = new PageDto(row.getString(1), row.getInteger(0), "false",
-                                          row.getString(2), new Date().toString());
-                dbFuture.complete(dto);
+                if (row.isEmpty()) {
+                    dbFuture.complete(PageDto.EMPTY);
+                }
+                else {
+                    PageDto dto = new PageDto(row.getString(1), row.getInteger(0), "false",
+                                              row.getString(2), new Date().toString());
+                    dbFuture.complete(dto);
+                }
             }
         });
 

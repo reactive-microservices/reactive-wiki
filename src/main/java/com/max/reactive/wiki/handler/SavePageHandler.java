@@ -26,7 +26,7 @@ public final class SavePageHandler implements Handler<RoutingContext> {
         String title = ctx.request().getParam("title");
         String markdown = ctx.request().getParam("markdown");
 
-        Future<Void> updateDbFuture;
+        Future<?> updateDbFuture;
 
         if (isNewPage(ctx)) {
             updateDbFuture = pageDao.save(title, markdown);

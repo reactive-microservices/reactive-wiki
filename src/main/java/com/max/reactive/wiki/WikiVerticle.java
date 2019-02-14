@@ -9,6 +9,7 @@ import com.max.reactive.wiki.handler.GetPageHandler;
 import com.max.reactive.wiki.handler.HealthHandler;
 import com.max.reactive.wiki.handler.IndexHandler;
 import com.max.reactive.wiki.handler.SavePageHandler;
+import com.max.reactive.wiki.handler.api.AddNewPageApi;
 import com.max.reactive.wiki.handler.api.GetAllPagesApi;
 import com.max.reactive.wiki.handler.api.GetPageApi;
 import io.vertx.core.AbstractVerticle;
@@ -55,10 +56,14 @@ public class WikiVerticle extends AbstractVerticle {
 
         Router router = Router.router(vertx);
 
-        //API
+        //API GET
         Router apiRouter = Router.router(vertx);
         apiRouter.get("/pages").handler(new GetAllPagesApi(pageDao));
         apiRouter.get("/pages/:id").handler(new GetPageApi(pageDao));
+
+        // API post
+        apiRouter.post().handler(BodyHandler.create());
+        apiRouter.post("/pages").handler(new AddNewPageApi(pageDao));
 
         // GET
         router.get("/health").handler(new HealthHandler());

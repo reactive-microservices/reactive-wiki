@@ -32,12 +32,21 @@ public class GetPageApi implements Handler<RoutingContext> {
             else {
                 PageDto dto = ar.result();
 
-                JsonObject singlePageJson = new JsonObject();
-                singlePageJson.put("id", dto.getPageId());
-                singlePageJson.put("name", dto.getPageName());
-                singlePageJson.put("content", dto.getContent());
+                if (dto == PageDto.EMPTY) {
+                    JsonObject notFoundJson = new JsonObject();
+                    notFoundJson.put("error", "PAGE_NOT_FOUND");
+                    notFoundJson.put("details", "Can't find page with id " + pageId);
+                    ctx.response().setStatusCode(404).putHeader("Content-Type", "application/json").
+                            end(notFoundJson.encodePrettily());
+                }
+                else {
+                    JsonObject singlePageJson = new JsonObject();
+                    singlePageJson.put("id", dto.getPageId());
+                    singlePageJson.put("name", dto.getPageName());
+                    singlePageJson.put("content", dto.getContent());
 
-                ctx.response().putHeader("Content-Type", "application/json").end(singlePageJson.encodePrettily());
+                    ctx.response().putHeader("Content-Type", "application/json").end(singlePageJson.encodePrettily());
+                }
             }
         });
 

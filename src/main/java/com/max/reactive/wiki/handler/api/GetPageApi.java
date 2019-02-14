@@ -1,7 +1,7 @@
 package com.max.reactive.wiki.handler.api;
 
 import com.max.reactive.wiki.dao.PageDao;
-import com.max.reactive.wiki.dao.PageDto;
+import com.max.reactive.wiki.dao.PageData;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonObject;
@@ -20,7 +20,7 @@ public class GetPageApi implements Handler<RoutingContext> {
 
         final String pageId = ctx.request().getParam("id");
 
-        Future<PageDto> pageFromDbFuture = pageDao.getSinglePageById(pageId);
+        Future<PageData> pageFromDbFuture = pageDao.getSinglePageById(pageId);
 
         pageFromDbFuture.setHandler(ar -> {
             if (ar.failed()) {
@@ -30,9 +30,9 @@ public class GetPageApi implements Handler<RoutingContext> {
                 ctx.response().setStatusCode(500).end(errorData.encodePrettily());
             }
             else {
-                PageDto dto = ar.result();
+                PageData dto = ar.result();
 
-                if (dto == PageDto.EMPTY) {
+                if (dto == PageData.EMPTY) {
                     JsonObject notFoundJson = new JsonObject();
                     notFoundJson.put("error", "PAGE_NOT_FOUND");
                     notFoundJson.put("details", "Can't find page with id " + pageId);

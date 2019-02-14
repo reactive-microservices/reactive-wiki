@@ -29,8 +29,8 @@ public class PageDao {
     }
 
 
-    public Future<List<PageDto>> getAllPages() {
-        Future<List<PageDto>> resFuture = Future.future();
+    public Future<List<PageData>> getAllPages() {
+        Future<List<PageData>> resFuture = Future.future();
 
         dbClient.query("SELECT id, name from PAGE", res -> {
             if (res.failed()) {
@@ -38,8 +38,8 @@ public class PageDao {
                 resFuture.fail(res.cause());
             }
             else {
-                List<PageDto> allPages = res.result().getResults().stream().
-                        map(json -> new PageDto(json.getString(1), json.getInteger(0), "", "", "")).collect(Collectors.toList());
+                List<PageData> allPages = res.result().getResults().stream().
+                        map(json -> new PageData(json.getString(1), json.getInteger(0), "", "", "")).collect(Collectors.toList());
 
                 resFuture.complete(allPages);
             }
@@ -87,9 +87,9 @@ public class PageDao {
         return allPagesFuture;
     }
 
-    public Future<PageDto> getSinglePageByName(String pageName) {
+    public Future<PageData> getSinglePageByName(String pageName) {
 
-        Future<PageDto> readPageFuture = Future.future();
+        Future<PageData> readPageFuture = Future.future();
 
         dbClient.queryWithParams("select id, content from PAGE where name = ?", new JsonArray().add(pageName), resultSet -> {
             if (resultSet.failed()) {
@@ -106,7 +106,7 @@ public class PageDao {
                 String newPage = resultSet.result().getResults().isEmpty() ? "yes" : "no";
                 String content = row.getString(1);
 
-                PageDto pageDto = new PageDto(pageName, id, newPage, content, new Date().toString());
+                PageData pageDto = new PageData(pageName, id, newPage, content, new Date().toString());
 
                 readPageFuture.complete(pageDto);
             }
@@ -170,8 +170,8 @@ public class PageDao {
         return resFuture;
     }
 
-    public Future<PageDto> getSinglePageById(String id) {
-        Future<PageDto> dbFuture = Future.future();
+    public Future<PageData> getSinglePageById(String id) {
+        Future<PageData> dbFuture = Future.future();
 
         dbClient.queryWithParams("SELECT id, name, content from PAGE where id = ?", new JsonArray().add(id), ar -> {
             if (ar.failed()) {
@@ -185,11 +185,11 @@ public class PageDao {
                         orElse(new JsonArray());
 
                 if (row.isEmpty()) {
-                    dbFuture.complete(PageDto.EMPTY);
+                    dbFuture.complete(PageData.EMPTY);
                 }
                 else {
-                    PageDto dto = new PageDto(row.getString(1), row.getInteger(0), "false",
-                                              row.getString(2), new Date().toString());
+                    PageData dto = new PageData(row.getString(1), row.getInteger(0), "false",
+                                                row.getString(2), new Date().toString());
                     dbFuture.complete(dto);
                 }
             }

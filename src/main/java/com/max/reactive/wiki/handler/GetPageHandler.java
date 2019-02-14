@@ -2,7 +2,7 @@ package com.max.reactive.wiki.handler;
 
 import com.github.rjeschke.txtmark.Processor;
 import com.max.reactive.wiki.dao.PageDao;
-import com.max.reactive.wiki.dao.PageDto;
+import com.max.reactive.wiki.dao.PageData;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
@@ -46,7 +46,7 @@ public final class GetPageHandler implements Handler<RoutingContext> {
         });
     }
 
-    private Future<Buffer> renderTemplate(PageDto pageDto) {
+    private Future<Buffer> renderTemplate(PageData pageDto) {
 
         Future<Buffer> renderTemplateFuture = Future.future();
 

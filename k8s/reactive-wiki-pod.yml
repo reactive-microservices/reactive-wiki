@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: reactive-wiki
+  labels:
+    creation_method: manual
+    env: dev
+spec:
+  containers:
+    - image: mstepan/reactive-wiki:latest
+      name: reactive-wiki
+      ports:
+        - containerPort: 8080
+          protocol: TCP

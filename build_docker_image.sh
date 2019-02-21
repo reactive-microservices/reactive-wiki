@@ -1,3 +1,3 @@
-docker build . --tag mstepan/reactive-wiki:latest
-docker push mstepan/reactive-wiki
+docker build . --tag mstepan/reactive-wiki:1.0.0-SNAPSHOT
+docker push mstepan/reactive-wiki:1.0.0-SNAPSHOT
 

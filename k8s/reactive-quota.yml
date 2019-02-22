@@ -1,7 +1,15 @@
 apiVersion: v1
 kind: ResourceQuota
 metadata:
-  name: reactive-pod-quota
+  name: reactive-quota
+  labels:
+    creation_method: manual
+    data_center: dc6
+    tribe: dss
+    env: dev
 spec:
   hard:
+    cpu: "2"
+    memory: 1Gi
     pods: "2"
+    replicationcontrollers: "2"

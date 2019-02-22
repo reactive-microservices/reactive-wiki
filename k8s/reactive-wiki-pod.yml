@@ -4,6 +4,8 @@ metadata:
   name: reactive-wiki
   labels:
     creation_method: manual
+    data_center: dc6
+    tribe: dss
     env: dev
 spec:
   containers:
@@ -12,3 +14,10 @@ spec:
       ports:
         - containerPort: 8080
           protocol: TCP
+      resources:
+        requests:
+          memory: "256Mi"
+          cpu: "1"
+        limits:
+          memory: "512Mi"
+          cpu: "1"

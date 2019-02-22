@@ -1,20 +1,14 @@
-apiVersion: extensions/v1beta1
-kind: ReplicaSet
+apiVersion: apps/v1
+kind: Deployment
 metadata:
-  name: wiki-replica-set
+  name: wiki-deployment
   labels:
-    app: wiki-replica-set
-    creation_method: manual
-    data_center: dc6
-    tribe: dss
-    env: dev
-
+    app: wiki-deployment
 spec:
   replicas: 2
   selector:
     matchLabels:
       app: reactive-wiki
-
   template:
     metadata:
       name: reactive-wiki
@@ -34,7 +28,7 @@ spec:
           resources:
             requests:
               memory: "256Mi"
-              cpu: "0.5"
+              cpu: "0.3"
             limits:
-              memory: "512Mi"
-              cpu: "0.5"
+              memory: "256Mi"
+              cpu: "0.3"

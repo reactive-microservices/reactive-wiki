@@ -11,5 +11,4 @@ spec:
   hard:
     cpu: "2"
     memory: 1Gi
-    pods: "2"
-    replicationcontrollers: "2"
+    pods: "4"

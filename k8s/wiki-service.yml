@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: wiki-service
+  labels:
+    app: wiki-service
+    creation_method: manual
+    data_center: dc6
+    tribe: dss
+    env: dev
+spec:
+  selector:
+    app: reactive-wiki
+  ports:
+    - port: 8080
+  type: NodePort

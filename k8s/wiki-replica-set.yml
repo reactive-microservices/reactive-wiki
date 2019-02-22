@@ -3,6 +3,7 @@ kind: ReplicaSet
 metadata:
   name: wiki-replica-set
   labels:
+    app: wiki-replica-set
     creation_method: manual
     data_center: dc6
     tribe: dss
